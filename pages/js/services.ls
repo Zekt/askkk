@@ -5,7 +5,13 @@ askServices = angular.module \askServices, <[firebase conf]>
 const signature_threshold = 500
 
 askServices.factory \authService, <[$firebase $q conf]> ++ ($firebase, $q, conf) ->
-  ref = new Firebase conf.firebase
+  config = {
+    apiKey: conf.apiKey,
+    authDomain: conf.authDomain,
+    databaseURL: conf.firebase
+  }
+  firebase.initializeApp config
+  ref = firebase.database!ref!
   service = {
     is-candidate: (id) ->
       deferred = $q.defer!
@@ -36,7 +42,13 @@ askServices.factory \authService, <[$firebase $q conf]> ++ ($firebase, $q, conf)
   }
 
 askServices.factory \candidateService, <[$firebase conf]> ++ ($firebase, conf) ->
-  ref = new Firebase conf.firebase
+  config = {
+    apiKey: conf.apiKey,
+    authDomain: conf.authDomain,
+    databaseURL: conf.firebase
+  }
+  firebase.initializeApp config
+  ref = firebase.database!ref!
   service = $firebase ref.child \candidates
     ..get = (id) ->
       service.$child id
@@ -49,7 +61,13 @@ askServices.factory \userService, <[$firebase conf]> ++ ($firebase, conf) ->
   }
 
 askServices.factory \questionService, <[$firebase $q conf]> ++ ($firebase, $q, conf) ->
-  ref = new Firebase conf.firebase
+  config = {
+    apiKey: conf.apiKey,
+    authDomain: conf.authDomain,
+    databaseURL: conf.firebase
+  }
+  firebase.initializeApp config
+  ref = firebase.database!ref!
   service = $firebase ref.child \questions
     # XXX arguments of `child_added` callback is different from doc
     ..$on \child_added, ({snapshot, prevChild}) ->
@@ -144,7 +162,13 @@ askServices.factory \questionService, <[$firebase $q conf]> ++ ($firebase, $q, c
       r-ref.child "votesCount" .transaction -> it + 1
 
 askServices.factory \signService, <[$firebase conf]> ++ ($firebase, conf) ->
-  ref = new Firebase conf.firebase
+  config = {
+    apiKey: conf.apiKey,
+    authDomain: conf.authDomain,
+    databaseURL: conf.firebase
+  }
+  firebase.initializeApp config
+  ref = firebase.database!ref!
   service = {
     signature_threshold
     sign: (user-id, question-id) ->

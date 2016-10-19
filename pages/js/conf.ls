@@ -6,5 +6,7 @@ angular.module \conf, []
       footerLink:
         link: \http://g0v.tw/
         title: \g0v
-      firebase: ''
+      apiKey: 'AIzaSyDDm0d-sgd6ksxW0lgqPu-FyOYnSruQl8o'
+      authDomain: 'askkk-ntu.firebaseapp.com'
+      firebase: 'askkk-ntu.firebaseapp.com'
     }
