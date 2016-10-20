@@ -82,7 +82,7 @@
 
           <div class="ask_question_candidate ask_question_candidate_data"
                id="{{n.id}}"
-               ng-repeat="n in candidates | orderByPriority" ng-click="toggleCandidate(n.id)">
+               ng-repeat="n in candidates" ng-click="toggleCandidate(n.id)">
 
             <div class="ask_question_text" id="candidateName_{{n.id}}">{{n.name}}</div>
             <img class="rounded ui image candidate_img" ng-src="images/candidates/{{n.id}}.jpg" width="80px">

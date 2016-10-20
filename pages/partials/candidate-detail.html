@@ -145,7 +145,7 @@
 
       <div class="candidate_detail_list_item" 
            ng-click="showQuestionDetail(n.$id)"
-           ng-repeat="n in questions | orderByPriority | respondedByCandidate:data.id">
+           ng-repeat="n in questions | respondedByCandidate:data.id">
         <div class="candidate_detail_vote web_only">
           <div class="candidate_detail_push web_only">
             {{n.voteUp|number:0}}

@@ -97,7 +97,7 @@
     </div>
 -->
     <div class="question_list_item" ng-click="showQuestionDetail(n.$id)"
-         ng-repeat="n in questions | orderByPriority | filter:'passed' | filter:query">
+         ng-repeat="n in questions | filter:'passed' | filter:query">
         
         <div ng-show="(n.signatures_count >= 500)" class="question_list_bow web_only">爆</div>
         <div class="question_list_votes web_only">{{n.signatures_count|number:0}}</div>
@@ -110,12 +110,12 @@
         <div class="question_list_title">{{n.title|limitTo:titleLimit }}{{(n.title.length>titleLimit ?'...':'')}}</div>
 
         <div class="candidate_state_block web_only">
-          <div ng-repeat="k in n.$addressing | orderByPriority | filter:'responded'"
+          <div ng-repeat="k in n.$addressing | filter:'responded'"
                class="candidate_state">
                <img class="ui image ask_who ask_who_responded" 
                     ng-src="images/candidates_avatar/{{k.$id}}.jpg"></img>
           </div>
-          <div ng-repeat="k in n.$addressing | orderByPriority |filter:'pending'"
+          <div ng-repeat="k in n.$addressing |filter:'pending'"
                class="candidate_state">
                <img class="ui image ask_who ask_who_pending" 
                     ng-src="images/candidates_avatar_bw/{{k.$id}}.jpg"></img>

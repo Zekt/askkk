@@ -98,7 +98,7 @@
       <div id="unreplied">
         <div class="candidate_inbox_list_item" 
              ng-click="displayQuestionDetail(n.$id)"
-             ng-repeat="n in questions | orderByPriority | pendedByCandidate:user.candidate_id | passedThreshold | filter:query">
+             ng-repeat="n in questions | pendedByCandidate:user.candidate_id | passedThreshold | filter:query">
            <div class="candidate_inbox_list_votes">{{n.signatures_count|number:0}}</div>
            <div class="candidate_inbox_list_date">{{n.post_date.month}}/{{n.post_date.day}}</div>
            <div class="candidate_inbox_list_title">{{n.title|limitTo:titleLimit }}{{(n.title.length>titleLimit ?'...':'')}}</div>
@@ -123,13 +123,13 @@
 
        <div class="addressed_to_candidate_text">本題詢問市長候選人：</div>
           <div class="addressed_to_candidate_collection">
-          <div ng-repeat="k in detail.$addressing | orderByPriority | filter:'responded'"
+          <div ng-repeat="k in detail.$addressing | filter:'responded'"
                class="addressed_to_candidate">
                <a href="#/candidate/{{k.$id}}">
                <img class="ui image addressed_to" 
                     ng-src="images/candidates_avatar/{{k.$id}}.jpg"></img></a>
           </div>
-          <div ng-repeat="k in detail.$addressing | orderByPriority | filter:'pending'"
+          <div ng-repeat="k in detail.$addressing | filter:'pending'"
                class="addressed_to_candidate">
                <a href="#/candidate/{{k.$id}}">
                <img class="ui image addressed_to" 

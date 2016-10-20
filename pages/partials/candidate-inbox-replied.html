@@ -97,7 +97,7 @@
       <div id="unreplied">
         <div class="candidate_inbox_list_item" 
              ng-click="displayQuestionDetail(n.$id)"
-             ng-repeat="n in questions | orderByPriority | respondedByCandidate:user.candidate_id | passedThreshold | filter:query">
+             ng-repeat="n in questions | respondedByCandidate:user.candidate_id | passedThreshold | filter:query">
            <div class="candidate_inbox_list_votes">
              <!--
               <div class="candidate_inbox_list_push">
