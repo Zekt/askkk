@@ -4,7 +4,7 @@
   ref$ = require('prelude-ls'), values = ref$.values, pairsToObj = ref$.pairsToObj, objToPairs = ref$.objToPairs;
   askServices = angular.module('askServices', ['firebase', 'conf']);
   signature_threshold = 500;
-  askServices.factory('authService', ['$firebase', '$q', 'conf'].concat(function($firebase, $q, conf){
+  askServices.factory('authService', ['$q', 'conf'].concat(function($q, conf){
     var config, ref, service;
     config = {
       apiKey: conf.apiKey,
@@ -64,45 +64,33 @@
       }
     };
   }));
-  askServices.factory('candidateService', ['$firebase', 'conf'].concat(function($firebase, conf){
-    var config, ref, x$, service;
-    config = {
-      apiKey: conf.apiKey,
-      authDomain: conf.authDomain,
-      databaseURL: conf.firebase
-    };
-    firebase.initializeApp(config);
+  askServices.factory('candidateService', ['$firebaseObject', 'conf'].concat(function($firebaseObject, conf){
+    var ref, x$, service;
     ref = firebase.database().ref();
-    x$ = service = $firebase(ref.child('candidates'));
+    x$ = service = $firebaseObject(ref.child('candidates'));
     x$.get = function(id){
       return service.$child(id);
     };
     return x$;
   }));
-  askServices.factory('userService', ['$firebase', 'conf'].concat(function($firebase, conf){
+  askServices.factory('userService', ['$firebaseObject', 'conf'].concat(function($firebaseObject, conf){
     var ref, service;
-    ref = new Firebase(conf.firebase);
+    ref = firebase.database().ref();
     return service = {
       get: function(id){
-        return $firebase(ref.child("users/" + id));
+        return $firebaseObject(ref.child("users/" + id));
       }
     };
   }));
-  askServices.factory('questionService', ['$firebase', '$q', 'conf'].concat(function($firebase, $q, conf){
-    var config, ref, x$, service;
-    config = {
-      apiKey: conf.apiKey,
-      authDomain: conf.authDomain,
-      databaseURL: conf.firebase
-    };
-    firebase.initializeApp(config);
+  askServices.factory('questionService', ['$firebaseObject', '$q', 'conf'].concat(function($firebaseObject, $q, conf){
+    var ref, x$, service;
     ref = firebase.database().ref();
-    x$ = service = $firebase(ref.child('questions'));
+    x$ = service = $firebaseObject(ref.child('questions'));
     x$.$on('child_added', function(arg$){
       var snapshot, prevChild;
       snapshot = arg$.snapshot, prevChild = arg$.prevChild;
       service[snapshot.name].$addressing = service.$child(snapshot.name + "/addressing");
-      service[snapshot.name].$asker = $firebase(ref.child("users/" + snapshot.value.asker));
+      service[snapshot.name].$asker = $firebaseObject(ref.child("users/" + snapshot.value.asker));
       return service[snapshot.name].postResponse = function(arg$){
         var postDate, responser, content;
         postDate = arg$.postDate, responser = arg$.responser, content = arg$.content;
@@ -127,7 +115,7 @@
       var snapshot, prevChild;
       snapshot = arg$.snapshot, prevChild = arg$.prevChild;
       service[snapshot.name].$addressing = service.$child(snapshot.name + "/addressing");
-      return service[snapshot.name].$asker = $firebase(ref.child("users/" + snapshot.value.asker));
+      return service[snapshot.name].$asker = $firebaseObject(ref.child("users/" + snapshot.value.asker));
     });
     x$.get = function(questionId){
       var x$, questionRef;
@@ -136,7 +124,7 @@
         questionRef.$id = questionId;
         questionRef.$addressing = questionRef.$child("addressing");
         questionRef.$responses = questionRef.$child("responses");
-        questionRef.$asker = $firebase(ref.child("users/" + questionRef.asker));
+        questionRef.$asker = $firebaseObject(ref.child("users/" + questionRef.asker));
         return questionRef.postResponse = function(arg$){
           var postDate, responser, content, deferred, rRef;
           postDate = arg$.postDate, responser = arg$.responser, content = arg$.content;
@@ -196,21 +184,21 @@
         }).then(function(postRef){
           (function(meta){
             meta.$child("collecting/" + postRef.name()).$set(true);
-          }.call(this, $firebase(ref.child('question_index'))));
+          }.call(this, $firebaseObject(ref.child('question_index'))));
           (function(meta){
             var i$, ref$, len$, c;
             for (i$ = 0, len$ = (ref$ = category).length; i$ < len$; ++i$) {
               c = ref$[i$];
               meta.$child(c + "/" + postRef.name()).$set(true);
             }
-          }.call(this, $firebase(ref.child('category'))));
+          }.call(this, $firebaseObject(ref.child('category'))));
           (function(meta){
             var i$, ref$, len$, c;
             for (i$ = 0, len$ = (ref$ = keys(addressing)).length; i$ < len$; ++i$) {
               c = ref$[i$];
               meta.$child(c + "/questions/" + postRef.name()).$set(true);
             }
-          }.call(this, $firebase(ref.child('candidate_meta'))));
+          }.call(this, $firebaseObject(ref.child('candidate_meta'))));
           if (onComplete) {
             return onComplete(postRef);
           }
@@ -255,14 +243,8 @@
     };
     return x$;
   }));
-  askServices.factory('signService', ['$firebase', 'conf'].concat(function($firebase, conf){
-    var config, ref, service;
-    config = {
-      apiKey: conf.apiKey,
-      authDomain: conf.authDomain,
-      databaseURL: conf.firebase
-    };
-    firebase.initializeApp(config);
+  askServices.factory('signService', ['$firebaseObject', 'conf'].concat(function($firebaseObject, conf){
+    var ref, service;
     ref = firebase.database().ref();
     return service = {
       signature_threshold: signature_threshold,

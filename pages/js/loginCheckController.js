@@ -1,43 +1,37 @@
-askControllers.controller('loginCheckCtrl', ['$scope', '$firebaseSimpleLogin', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseSimpleLogin, conf, authService, $location, candidateService, questionService){
+askControllers.controller('loginCheckCtrl', ['$scope', '$firebaseAuth', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseAuth, conf, authService, $location, candidateService, questionService){
   
   
   $scope.conf = conf;
-   $scope.candidates = candidateService;
-   $scope.auth = $firebaseSimpleLogin(new Firebase(conf.firebase));
+  $scope.candidates = candidateService;
+  $scope.auth = $firebaseAuth();
   
-   $scope.auth.$getCurrentUser().then(function (user) {
-    
+  var user = $scope.auth.$getAuth();
+  if(user) {
     try{
-         authService.get(user.id).then(function (user) {
-           $scope.user = user;
-           window.location = "#/ask-question";
-         });
+        authService.get(user.uid).then(function(user) {
+        $scope.user = user;
+        window.location = "#/ask-question";
+      });
     }catch(error){
-       console.log("請先登入後再發問！");
-
+      console.log("請先登入後再發問！");
     }
-  });
-
-  $scope.login = function () {
-    event.preventDefault();
-    $scope.auth.$login('facebook')
-    .then(function (user) {
-      try{
-         authService.get(user.id).then(function (user) {
-           $scope.user = user;
-           window.location = "#/ask-question";
-         });
-       }catch(error){
-          alert("請先登入後再發問！");
-
-       }
-       authService.onLogin(user);
-
-
-    }, function (error) {
-    });
   };
 
+  $scope.login = function () {
+    var provider = new firebase.auth.FacebookAuthProvider();
+    $scope.auth.$signInWithPopup(provider).then(function(result) {
+      try{
+        authService.get(result.user.uid).then(function(user) {
+          $scope.user = user;
+          window.location = "#/ask-question";
+        });
+      }catch(error){
+        alert("請先登入後再發問！");
+      }
+      authService.onLogin(result.user);
+	}).catch(function(error) {
+	});
+  };
 
 
 }]);

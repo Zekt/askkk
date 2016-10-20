@@ -1,4 +1,4 @@
-askControllers.controller('responseListCtrl', ['$scope', '$firebaseSimpleLogin', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseSimpleLogin, conf, authService, $location, candidateService, questionService){
+askControllers.controller('responseListCtrl', ['$scope', '$firebaseAuth', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseAuth, conf, authService, $location, candidateService, questionService){
 
 
   semanticMenuReady();
@@ -58,25 +58,24 @@ askControllers.controller('responseListCtrl', ['$scope', '$firebaseSimpleLogin',
   }
   /* ---------------------- */
 
-  $scope.auth = $firebaseSimpleLogin(new Firebase(conf.firebase));
-  $scope.auth.$getCurrentUser().then(function (user) {
+  $scope.auth = $firebaseAuth();
+  $scope.auth.$onAuthStateChanged(function(user) {
     if (user) {
-      authService.get(user.id).then(function (user) {
+        authService.get(user.uid).then(function(user) {
         $scope.user = user;
       });
     }
   });
   $scope.login = function () {
-    event.preventDefault();
-    $scope.auth.$login('facebook')
-    .then(function (user) {
-      authService.onLogin(user);
-    }, function (error) {
-    });
+    var provider = new firebase.auth.FacebookAuthProvider();
+    $scope.auth.$signInWithPopup(provider).then(function(result) {
+      authService.onLogin(result.user);
+	}).catch(function(error) {
+	});
   };
   $scope.logout = function () {
     authService.onLogout($scope.auth.user);
-    $scope.auth.$logout();
+    $scope.auth.$signOut();
   };
   $scope.candidates = candidateService;
   $scope.categories = global.categories;

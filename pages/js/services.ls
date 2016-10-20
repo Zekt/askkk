@@ -42,31 +42,19 @@ askServices.factory \authService, <[$firebase $q conf]> ++ ($firebase, $q, conf)
   }
 
 askServices.factory \candidateService, <[$firebase conf]> ++ ($firebase, conf) ->
-  config = {
-    apiKey: conf.apiKey,
-    authDomain: conf.authDomain,
-    databaseURL: conf.firebase
-  }
-  firebase.initializeApp config
   ref = firebase.database!ref!
   service = $firebase ref.child \candidates
     ..get = (id) ->
       service.$child id
 
 askServices.factory \userService, <[$firebase conf]> ++ ($firebase, conf) ->
-  ref = new Firebase conf.firebase
+  ref = firebase.database!ref!
   service = {
     get: (id) ->
       $firebase ref.child "users/#{id}"
   }
 
 askServices.factory \questionService, <[$firebase $q conf]> ++ ($firebase, $q, conf) ->
-  config = {
-    apiKey: conf.apiKey,
-    authDomain: conf.authDomain,
-    databaseURL: conf.firebase
-  }
-  firebase.initializeApp config
   ref = firebase.database!ref!
   service = $firebase ref.child \questions
     # XXX arguments of `child_added` callback is different from doc
@@ -162,12 +150,6 @@ askServices.factory \questionService, <[$firebase $q conf]> ++ ($firebase, $q, c
       r-ref.child "votesCount" .transaction -> it + 1
 
 askServices.factory \signService, <[$firebase conf]> ++ ($firebase, conf) ->
-  config = {
-    apiKey: conf.apiKey,
-    authDomain: conf.authDomain,
-    databaseURL: conf.firebase
-  }
-  firebase.initializeApp config
   ref = firebase.database!ref!
   service = {
     signature_threshold
