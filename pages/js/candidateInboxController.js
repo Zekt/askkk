@@ -1,7 +1,6 @@
+askControllers.controller('candidateInboxCtrl',['$scope','$firebaseAuth', 'conf', '$location', 'authService', '$routeParams','candidateService', 'questionService',
 
-askControllers.controller('candidateInboxCtrl',['$scope','$firebaseSimpleLogin', 'conf', '$location', 'authService', '$routeParams','candidateService', 'questionService',
-
-function($scope,$firebaseSimpleLogin, conf, $location, authService, $routeParams,candidateService, questionService){
+function($scope,$firebaseAuth, conf, $location, authService, $routeParams,candidateService, questionService){
 
   semanticMenuReady();
   semanticAccordingReady();
@@ -10,29 +9,24 @@ function($scope,$firebaseSimpleLogin, conf, $location, authService, $routeParams
   $scope.titleLimit=global.titleLimitCandidateInbox;
   $scope.userNameLimitMobile = global.userNameLimitMobile;
   
-  $scope.auth = $firebaseSimpleLogin(new Firebase(conf.firebase));
-  $scope.auth.$getCurrentUser().then(function (user) {
-    if (user == null) {
-      $location.path("/");
+  $scope.auth = $firebaseAuth();
+  $scope.auth.$onAuthStateChanged(function(user) {
+    if (user) {
+        authService.get(user.uid).then(function(user) {
+        $scope.user = user;
+      });
     }
-    authService.get(user.id).then(function (user) {
-      if (! user || ! user.candidate_id) {
-        $location.path("/");
-      }
-      $scope.user = user;
-    });
   });
   $scope.login = function () {
-    event.preventDefault();
-    $scope.auth.$login('facebook')
-    .then(function (user) {
-      authService.onLogin(user);
-    }, function (error) {
-    });
+    var provider = new firebase.auth.FacebookAuthProvider();
+    $scope.auth.$signInWithPopup(provider).then(function(result) {
+      authService.onLogin(result.user);
+	}).catch(function(error) {
+	});
   };
   $scope.logout = function () {
     authService.onLogout($scope.auth.user);
-    $scope.auth.$logout();
+    $scope.auth.$signOut();
   };
 
   $scope.questions = questionService;

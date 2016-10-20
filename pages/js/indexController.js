@@ -1,4 +1,4 @@
-askControllers.controller('indexCtrl', ['$scope', '$firebaseSimpleLogin', 'conf', 'authService', 'candidateService', 'signService', function($scope, $firebaseSimpleLogin, conf, authService, candidateService, signService){
+askControllers.controller('indexCtrl', ['$scope', '$firebaseAuth', 'conf', 'authService', 'candidateService', 'signService', function($scope, $firebaseAuth, conf, authService, candidateService, signService){
 
   semanticMenuReady();
   //semanticAccordingReady();
@@ -20,25 +20,24 @@ askControllers.controller('indexCtrl', ['$scope', '$firebaseSimpleLogin', 'conf'
   /* ---------------------- */
 
 
-  $scope.auth = $firebaseSimpleLogin(new Firebase(conf.firebase));
-  $scope.auth.$getCurrentUser().then(function (user) {
+  $scope.auth = $firebaseAuth();
+  $scope.auth.$onAuthStateChanged(function(user) {
     if (user) {
-      authService.get(user.id).then(function (user) {
+        authService.get(user.uid).then(function(user) {
         $scope.user = user;
       });
     }
   });
   $scope.login = function () {
-    event.preventDefault();
-    $scope.auth.$login('facebook')
-    .then(function (user) {
-      authService.onLogin(user);
-    }, function (error) {
-    });
+    var provider = new firebase.auth.FacebookAuthProvider();
+    $scope.auth.$signInWithPopup(provider).then(function(result) {
+      authService.onLogin(result.user);
+	}).catch(function(error) {
+	});
   };
   $scope.logout = function () {
     authService.onLogout($scope.auth.user);
-    $scope.auth.$logout();
+    $scope.auth.$signOut();
   };
   $scope.candidates = candidateService;
   $scope.signature_threshold = signService.signature_threshold;
@@ -51,6 +50,7 @@ askControllers.controller('indexCtrl', ['$scope', '$firebaseSimpleLogin', 'conf'
   	$("#"+chosed_tab+"_tab").addClass("index_tab_active");
 
     //mobiel tab css adjust
+
     $(".tab_menu").removeClass("tab_menu_active");
     $("#"+chosed_tab+"_mobiletab").addClass("tab_menu_active");
 

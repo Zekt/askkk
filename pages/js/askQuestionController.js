@@ -1,21 +1,19 @@
-askControllers.controller('askQuestionCtrl', ['$scope', '$firebaseSimpleLogin', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseSimpleLogin, conf, authService, $location, candidateService, questionService){
+askControllers.controller('askQuestionCtrl', ['$scope', '$firebaseAuth', 'conf', 'authService', '$location', 'candidateService', 'questionService', function($scope, $firebaseAuth, conf, authService, $location, candidateService, questionService){
   
   $scope.conf = conf;
   $scope.userNameLimitMobile = global.userNameLimitMobile;
   $scope.candidates = candidateService;
-  $scope.auth = $firebaseSimpleLogin(new Firebase(conf.firebase));
-  $scope.auth.$getCurrentUser().then(function (user) {
-    
+  $scope.auth = $firebaseAuth();
+  var user = $scope.auth.$getAuth();
+  if(user) {
     try{
-         authService.get(user.id).then(function (user) {
-           $scope.user = user;
-           
-         });
+      authService.get(user.id).then(function (user) {
+        $scope.user = user;
+      });
     }catch(error){
-       window.location = "#/login-check";
-
+      window.location = "#/login-check";
     }
-  });
+  };
 
 
 
@@ -35,21 +33,27 @@ askControllers.controller('askQuestionCtrl', ['$scope', '$firebaseSimpleLogin', 
     mobileSideBarSetup();
   }
   /* ---------------------- */
-   
  
+
+  $scope.auth = $firebaseAuth();
+  $scope.auth.$onAuthStateChanged(function(user) {
+    if (user) {
+        authService.get(user.uid).then(function(user) {
+        $scope.user = user;
+      });
+    }
+  });
   $scope.login = function () {
-    event.preventDefault();
-    $scope.auth.$login('facebook')
-    .then(function (user) {
-      authService.onLogin(user);
-    }, function (error) {
-    });
+    var provider = new firebase.auth.FacebookAuthProvider();
+    $scope.auth.$signInWithPopup(provider).then(function(result) {
+      authService.onLogin(result.user);
+	}).catch(function(error) {
+	});
   };
   $scope.logout = function () {
     authService.onLogout($scope.auth.user);
-    $scope.auth.$logout();
+    $scope.auth.$signOut();
   };
- 
   $scope.candidateSelection = [];
   $scope.toggleCandidate = function(selectedId){
    
